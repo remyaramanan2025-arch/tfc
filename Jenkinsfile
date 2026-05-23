@@ -1,39 +1,30 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = "tfc-nation-app"
-        CONTAINER_NAME = "tfc-nation-container"
-    }
-
     stages {
 
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t %IMAGE_NAME% .'
+                sh 'docker build -t myapp .'
             }
         }
 
         stage('Stop Old Container') {
             steps {
-                bat '''
-                docker stop %CONTAINER_NAME%
-                docker rm %CONTAINER_NAME%
-                exit 0
-                '''
+                sh 'docker rm -f mycontainer || true'
             }
         }
 
         stage('Run Docker Container') {
             steps {
-                bat 'docker run -d -p 8081:80 --name %CONTAINER_NAME% %IMAGE_NAME%'
+                sh 'docker run -d -p 80:80 --name mycontainer myapp'
             }
         }
     }
 
     post {
         success {
-            echo 'Website deployed successfully!'
+            echo 'Deployment successful!'
         }
 
         failure {
